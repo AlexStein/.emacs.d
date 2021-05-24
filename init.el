@@ -7,30 +7,33 @@
    ["#2e3436" "#a40000" "#4e9a06" "#c4a000" "#204a87" "#5c3566" "#729fcf" "#eeeeec"])
  '(display-time-mode t)
  '(ede-project-directories (quote ("/home/stein/positive/ptaf/ptaf-services/")))
- '(git-gutter:added-sign "+")
- '(git-gutter:deleted-sign "-")
- '(git-gutter:modified-sign "~")
  '(package-selected-packages
    (quote
-    (smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org nlinum neotree json-mode ido-at-point highlight-parentheses highlight-current-line highlight git-gutter-fringe git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2)))
+    (smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2)))
  '(safe-local-variable-values (quote ((encoding . utf-8))))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
-;(custom-set-faces
+(custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-; )
+)
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
 (load-theme 'railscasts t nil)
+
+;; F7 to edit init.el
+(global-set-key [f7] (lambda () (interactive) (find-file user-init-file)))
 
 (setq make-backup-files nil)
 (setq auto-save-default nil)
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq inhibit-startup-message t)
+
+;; Default projects folder
+(setq default-directory "~/positive/ptaf")
 
 (tool-bar-mode -1)
 
@@ -40,38 +43,41 @@
 (when (< emacs-major-version 24)
   ;; For important compatibility libraries like cl-lib
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
-(package-initialize)
+
+(when (< emacs-major-version 27)
+  (package-initialize))
 
 (add-to-list 'package-archives
              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 
-;; Подсветка пробелов в конце строк
+;; Trailing spaces
 (add-hook 'prog-mode-hook
       (lambda () (setq show-trailing-whitespace t)))
-;; В вопросах только y или n
+
+;; Only y or n in questions
 (fset 'yes-or-no-p 'y-or-n-p)
 
-;; Подсветка курсора
-;;(beacon-mode 1)
-
-;; Подсветка слова
-(smartscan-mode 1)
-
-(add-to-list 'load-path "~/.emacs.d/inits/")
 (add-to-list 'load-path "~/.emacs.d/mods/")
 
-;;(require 'rg)
+(require 'rg)
 (global-set-key (kbd "M-s") 'ripgrep-regexp)
 
+;; dumb jump
+(require 'dumb-jump)
+(setq dumb-jump-default-project "~/positive/ptaf")
+(setq dumb-jump-prefer-searcher 'rg)
+(add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+
+;; smartscan
+(setq smartscan-symbol-selector "symbol")
+(add-hook 'python-mode-hook 'smartscan-mode)
+
+;; highlight line with the cursor, preserving the colours.
+(global-hl-line-mode 1)
+(set-face-attribute 'hl-line nil :foreground nil :background "#333300")
+
 (require 'auto-install)
-(require 'nlinum)
-;; Preset width nlinum
-(add-hook 'nlinum-mode-hook
-          (lambda ()
-            (setq nlinum--width
-              (length (number-to-string
-                       (count-lines (point-min) (point-max)))))))
-(global-linum-mode t)
+(global-display-line-numbers-mode t)
 
 ;; Показывать время
 (display-time-mode 1)
@@ -121,7 +127,7 @@
 (require 'web-mode)
 
 ; с какими файлами ассоциировать web-mode
-;;(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
 
@@ -129,12 +135,6 @@
 (setq web-mode-markup-indent-offset 4)
 (setq web-mode-css-indent-offset 4)
 (setq web-mode-code-indent-offset 4)
-
-; сниппеты и автозакрытие парных скобок
-;;(setq web-mode-extra-snippets '(("erb" . (("name" . ("beg" . "end"))))
-;;                                ))
-;;(setq web-mode-extra-auto-pairs '(("erb" . (("open" "close")))
-;;                                ))
 
 ; подсвечивать текущий элемент
 (setq web-mode-enable-current-element-highlight t)
@@ -178,18 +178,87 @@
 (global-set-key (kbd "<mouse-5>")
  (lambda () (interactive) (scroll-up mouse-wheel-scroll-amount) (redisplay)))
 
-;;(require 'nose)
-;;(add-hook 'python-mode-hook (lambda () (nose-mode t)))
-;;(setq nose-global-name "nosetests")
-(add-hook 'python-mode-hook
-          '(lambda () (define-key python-mode-map "\C-ct" 'nosetests-again)))
+;; Mark 80 column
+;(require 'column-marker)
+;(set-face-background 'column-marker-1 "#333300")
+;(column-marker-1 80)
 
-;; Emacs server
-;;(require 'server)
-;;(unless (server-running-p)
-;;  (server-start))
+(require 'whitespace)
+(setq whitespace-line-column 80) ;; limit line length
+(setq whitespace-style '(face lines-tail))
+(global-whitespace-mode t)
 
-(load "mods")
+
+; init-yasnippet.el
+(require 'yasnippet)
+(yas-global-mode 1)
+(setq yas-snippet-dirs '("~/.emacs.d/snippets" ))
+(provide 'init-yasnippet)
+
+;; JS
+(require 'json-mode)
+(require 'js2-mode)
+(require 'ac-js2)
+(require 'coffee-mode)
+
+(require 'tern)
+(require 'tern-auto-complete)
+
+(add-hook 'js-mode-hook (lambda () (tern-mode t)))
+(eval-after-load 'tern
+   '(progn
+      (require 'tern-auto-complete)
+      (tern-ac-setup)))
+
+(require 'ruby-mode)
+(require 'ruby-hash-syntax)
+(add-to-list 'auto-mode-alist
+               '("\\.\\(?:gemspec\\|irbrc\\|gemrc\\|rake\\|rb\\|ru\\|thor\\)\\'" . ruby-mode))
+  (add-to-list 'auto-mode-alist
+               '("\\(Capfile\\|Gemfile\\(?:\\.[a-zA-Z0-9._-]+\\)?\\|[rR]akefile\\)\\'" . ruby-mode))
+
+(require 'flymake-ruby)
+(add-hook 'ruby-mode-hook 'flymake-ruby-load)
+(setq ruby-deep-indent-paren nil)
+
+;; Projectile
+(projectile-global-mode)
+(add-hook 'projectile-mode-hook 'projectile-rails-on)
+(setq projectile-rails-add-keywords nil)
+
+(require 'yaml-mode)
+    (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
+
+;; Дерево проекта по F8
+(require 'neotree)
+(global-set-key [f8] 'neotree-toggle)
+
+;; git-gutter
+(global-git-gutter+-mode t)
+
+(setq git-gutter+-modified-sign "~")
+(setq git-gutter+-added-sign "+")
+(setq git-gutter+-deleted-sign "-")
+
+(set-face-foreground 'git-gutter+-modified "purple")
+(set-face-foreground 'git-gutter+-added    "green")
+(set-face-foreground 'git-gutter+-deleted  "red")
+
+;; Highlight parentheses
+(define-globalized-minor-mode global-highlight-parentheses-mode
+  highlight-parentheses-mode
+  (lambda ()
+    (highlight-parentheses-mode t)))
+(global-highlight-parentheses-mode t)
+
+
+;; Markdown
+(autoload 'markdown-mode "markdown-mode"
+   "Major mode for editing Markdown files" t)
+(add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+
 
 ;; new mods
 (require 'symbol-overlay)
@@ -201,3 +270,8 @@
 
 (require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
+
+;; Emacs server
+(require 'server)
+(unless (server-running-p)
+  (server-start))
