@@ -9,7 +9,7 @@
  '(ede-project-directories (quote ("/home/stein/positive/ptaf/ptaf-services/")))
  '(package-selected-packages
    (quote
-    (smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2)))
+    (all-the-icons smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2)))
  '(safe-local-variable-values (quote ((encoding . utf-8))))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
@@ -18,10 +18,13 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-)
+ )
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
 (load-theme 'railscasts t nil)
+
+;; Emacs > 27.1
+(setq byte-complile-warnings '(not cl-functions))
 
 ;; F7 to edit init.el
 (global-set-key [f7] (lambda () (interactive) (find-file user-init-file)))
@@ -31,6 +34,7 @@
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq inhibit-startup-message t)
+(setq column-number-mode t)
 
 ;; Default projects folder
 (setq default-directory "~/positive/ptaf")
@@ -40,15 +44,18 @@
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.org/packages/") t)
-(when (< emacs-major-version 24)
-  ;; For important compatibility libraries like cl-lib
-  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
-
+(add-to-list 'package-archives
+             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (when (< emacs-major-version 27)
   (package-initialize))
 
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+;; Bounds indicator
+(require 'fill-column-indicator)
+(setq fci-rule-column 100)
+(setq fci-rule-width 1)
+(setq fci-rule-color "darkred")
+
+(add-hook 'python-mode-hook 'fci-mode)
 
 ;; Trailing spaces
 (add-hook 'prog-mode-hook
@@ -117,7 +124,7 @@
       calendar-month-name-array ["Январь" "Февраль" "Март" "Апрель" "Май"
                                  "Июнь" "Июль" "Август" "Сентябрь"
                                  "Октябрь" "Ноябрь" "Декабрь"])
-;; org-mode keys
+;; Org-mode keys
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-ca" 'org-agenda)
@@ -125,20 +132,15 @@
 
 ;; Web-mode
 (require 'web-mode)
-
-; с какими файлами ассоциировать web-mode
 (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
 
-; настройка отступов
+;; Web-mode settings
 (setq web-mode-markup-indent-offset 4)
 (setq web-mode-css-indent-offset 4)
 (setq web-mode-code-indent-offset 4)
-
-; подсвечивать текущий элемент
 (setq web-mode-enable-current-element-highlight t)
-; и колонку
 (setq web-mode-enable-current-column-highlight t)
 
 (load "quail/cyrillic")
@@ -178,22 +180,10 @@
 (global-set-key (kbd "<mouse-5>")
  (lambda () (interactive) (scroll-up mouse-wheel-scroll-amount) (redisplay)))
 
-;; Mark 80 column
-;(require 'column-marker)
-;(set-face-background 'column-marker-1 "#333300")
-;(column-marker-1 80)
-
 (require 'whitespace)
-(setq whitespace-line-column 80) ;; limit line length
+(setq whitespace-line-column 100) ;; limit line length
 (setq whitespace-style '(face lines-tail))
 (global-whitespace-mode t)
-
-
-; init-yasnippet.el
-(require 'yasnippet)
-(yas-global-mode 1)
-(setq yas-snippet-dirs '("~/.emacs.d/snippets" ))
-(provide 'init-yasnippet)
 
 ;; JS
 (require 'json-mode)
@@ -210,6 +200,7 @@
       (require 'tern-auto-complete)
       (tern-ac-setup)))
 
+;; Ruby
 (require 'ruby-mode)
 (require 'ruby-hash-syntax)
 (add-to-list 'auto-mode-alist
@@ -229,13 +220,12 @@
 (require 'yaml-mode)
     (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
 
-;; Дерево проекта по F8
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
+(setq neo-smart-open t)
 
 ;; git-gutter
 (global-git-gutter+-mode t)
-
 (setq git-gutter+-modified-sign "~")
 (setq git-gutter+-added-sign "+")
 (setq git-gutter+-deleted-sign "-")
@@ -251,7 +241,6 @@
     (highlight-parentheses-mode t)))
 (global-highlight-parentheses-mode t)
 
-
 ;; Markdown
 (autoload 'markdown-mode "markdown-mode"
    "Major mode for editing Markdown files" t)
@@ -259,17 +248,21 @@
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
 
-
-;; new mods
 (require 'symbol-overlay)
 (global-set-key (kbd "M-i") 'symbol-overlay-put)
 (global-set-key (kbd "M-n") 'symbol-overlay-switch-forward)
 (global-set-key (kbd "M-p") 'symbol-overlay-switch-backward)
-(global-set-key (kbd "<f7>") 'symbol-overlay-mode)
-(global-set-key (kbd "<f9>") 'symbol-overlay-remove-all)
+(global-set-key [f9] 'symbol-overlay-remove-all)
+(global-set-key [f10] 'symbol-overlay-mode)
 
 (require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
+
+;; Snippets
+(require 'yasnippet)
+(yas-global-mode 1)
+(setq yas-snippet-dirs '("~/.emacs.d/snippets" ))
+(provide 'init-yasnippet)
 
 ;; Emacs server
 (require 'server)
