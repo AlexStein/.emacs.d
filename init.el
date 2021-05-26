@@ -23,6 +23,12 @@
 
 (load-theme 'railscasts t nil)
 
+;; System-type definition
+(defun system-is-linux()
+    (string-equal system-type "gnu/linux"))
+(defun system-is-windows()
+    (string-equal system-type "windows-nt"))
+
 ;; Emacs > 27.1
 (setq byte-complile-warnings '(not cl-functions))
 
@@ -35,6 +41,34 @@
 (setq-default indent-tabs-mode nil)
 (setq inhibit-startup-message t)
 (setq column-number-mode t)
+(setq use-dialog-box nil)
+(setq redisplay-dont-pause t)
+(setq ring-bell-function 'ignore)
+
+;; Disable backup/autosave files
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+(setq auto-save-list-file-name nil)
+
+;; End of file newlines
+(setq require-final-newline t)
+(setq next-line-add-newlines nil)
+
+;; Highlight search resaults
+(setq search-highlight t)
+(setq query-replace-highlight t)
+
+;; Easy transition between buffers: M-arrow-keys
+(if (equal nil (equal major-mode 'org-mode))
+    (windmove-default-keybindings 'meta))
+
+;; Delete trailing whitespaces, untabify when save buffer
+(defun untabify-current-buffer()
+    (if (not indent-tabs-mode)
+        (untabify (point-min) (point-max)))
+    nil)
+(add-to-list 'write-file-functions 'untabify-current-buffer)
+(add-to-list 'write-file-functions 'delete-trailing-whitespace)
 
 ;; Default projects folder
 (setq default-directory "~/positive/ptaf")
@@ -241,6 +275,20 @@
     (highlight-parentheses-mode t)))
 (global-highlight-parentheses-mode t)
 
+;; Show-paren-mode settings
+(show-paren-mode t)
+(setq show-paren-style 'expression)
+(setq show-paren-delay 2)
+
+(require 'paren)
+(set-face-background 'show-paren-match "#334466")
+
+;; Electric-modes settings
+(electric-pair-mode 1)
+
+;; Delete selection
+(delete-selection-mode t)
+
 ;; Markdown
 (autoload 'markdown-mode "markdown-mode"
    "Major mode for editing Markdown files" t)
@@ -264,7 +312,18 @@
 (setq yas-snippet-dirs '("~/.emacs.d/snippets" ))
 (provide 'init-yasnippet)
 
+;; Bookmark settings
+(require 'bookmark)
+(setq bookmark-save-flag t)
+(when (file-exists-p (concat user-emacs-directory "bookmarks"))
+    (bookmark-load bookmark-default-file t))
+(global-set-key (kbd "<f3>") 'bookmark-set)
+(global-set-key (kbd "<f4>") 'bookmark-jump)
+(global-set-key (kbd "<f5>") 'bookmark-bmenu-list)
+(setq bookmark-default-file (concat user-emacs-directory "bookmarks"))
+
 ;; Emacs server
-(require 'server)
-(unless (server-running-p)
-  (server-start))
+(when (system-is-linux)
+  (require 'server)
+  (unless (server-running-p)
+    (server-start)))
