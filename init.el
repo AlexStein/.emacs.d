@@ -6,7 +6,7 @@
  '(ansi-color-names-vector
    ["#2e3436" "#a40000" "#4e9a06" "#c4a000" "#204a87" "#5c3566" "#729fcf" "#eeeeec"])
  '(display-time-mode t)
- '(ede-project-directories (quote ("/home/stein/positive/ptaf/ptaf-services/")))
+ '(ede-project-directories (quote ("~/positive/ptaf/ptaf-services/")))
  '(package-selected-packages
    (quote
     (all-the-icons smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2)))
@@ -20,7 +20,6 @@
  ;; If there is more than one, they won't work right.
  )
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-
 (load-theme 'railscasts t nil)
 
 ;; System-type definition
@@ -35,8 +34,7 @@
 ;; F7 to edit init.el
 (global-set-key [f7] (lambda () (interactive) (find-file user-init-file)))
 
-(setq make-backup-files nil)
-(setq auto-save-default nil)
+(tool-bar-mode -1)
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq inhibit-startup-message t)
@@ -71,9 +69,10 @@
 (add-to-list 'write-file-functions 'delete-trailing-whitespace)
 
 ;; Default projects folder
-(setq default-directory "~/positive/ptaf")
-
-(tool-bar-mode -1)
+(when (system-is-linux)
+  (setq default-directory "~/positive/ptaf"))
+(when (system-is-windows)
+  (setq default-directory "C:/work/_projects/loader10"))
 
 (require 'package)
 (add-to-list 'package-archives
@@ -101,11 +100,16 @@
 (add-to-list 'load-path "~/.emacs.d/mods/")
 
 (require 'rg)
+(setq rg-ignore-case nil)
 (global-set-key (kbd "M-s") 'ripgrep-regexp)
 
 ;; dumb jump
 (require 'dumb-jump)
-(setq dumb-jump-default-project "~/positive/ptaf")
+(when (system-is-linux)
+  (setq dumb-jump-default-project "~/positive/ptaf"))
+(when (system-is-windows)
+  (setq dumb-jump-default-project "C:/work/_projects/loader10"))
+
 (setq dumb-jump-prefer-searcher 'rg)
 (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
 
@@ -144,10 +148,12 @@
 (setq org-log-done 'time)
 
 ;; files
-(setq org-agenda-files (list "~/Dropbox/TM/"))
-
-;; configure capturing
-(setq org-directory "~/Dropbox/TM")
+(when (system-is-linux)
+  (setq org-agenda-files (list "~/Dropbox/TM/"))
+  (setq org-directory "~/Dropbox/TM"))
+(when (system-is-windows)
+  (setq org-agenda-files (list "C:/Dropbox/TM/"))
+  (setq org-directory "C:/Dropbox/TM"))
 
 ;; calendar
 (add-hook 'calendar-load-hook
@@ -252,7 +258,7 @@
 (setq projectile-rails-add-keywords nil)
 
 (require 'yaml-mode)
-    (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
+(add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
 
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
