@@ -34,6 +34,11 @@
 ;; F7 to edit init.el
 (global-set-key [f7] (lambda () (interactive) (find-file user-init-file)))
 
+;; Show full path to file in current buffer in frame title
+(setq frame-title-format
+      (list (format "%s %%S: %%j " (system-name))
+        '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
+
 (tool-bar-mode -1)
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
@@ -52,7 +57,7 @@
 (setq require-final-newline t)
 (setq next-line-add-newlines nil)
 
-;; Highlight search resaults
+;; Highlight search results
 (setq search-highlight t)
 (setq query-replace-highlight t)
 
@@ -82,13 +87,13 @@
 (when (< emacs-major-version 27)
   (package-initialize))
 
-;; Bounds indicator
-(require 'fill-column-indicator)
-(setq fci-rule-column 100)
-(setq fci-rule-width 1)
-(setq fci-rule-color "darkred")
+;; ;; Bounds indicator
+;; (require 'fill-column-indicator)
+;; (setq fci-rule-column 100)
+;; (setq fci-rule-width 1)
+;; (setq fci-rule-color "darkred")
 
-(add-hook 'python-mode-hook 'fci-mode)
+;; (add-hook 'python-mode-hook 'fci-mode)
 
 ;; Trailing spaces
 (add-hook 'prog-mode-hook
