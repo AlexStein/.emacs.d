@@ -6,11 +6,10 @@
  '(ansi-color-names-vector
    ["#2e3436" "#a40000" "#4e9a06" "#c4a000" "#204a87" "#5c3566" "#729fcf" "#eeeeec"])
  '(display-time-mode t)
- '(ede-project-directories (quote ("~/positive/ptaf/ptaf-services/")))
+ '(ede-project-directories '("~/positive/ptaf/ptaf-services/"))
  '(package-selected-packages
-   (quote
-    (all-the-icons smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2)))
- '(safe-local-variable-values (quote ((encoding . utf-8))))
+   '(reverse-im smart-shift all-the-icons smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2))
+ '(safe-local-variable-values '((encoding . utf-8)))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
 (custom-set-faces
@@ -129,7 +128,7 @@
 (require 'auto-install)
 (global-display-line-numbers-mode t)
 
-;; Показывать время
+;; show current time
 (display-time-mode 1)
 (setq display-time-format "%H:%M:%S")
 
@@ -144,11 +143,11 @@
 
 ;; Keywords
 (setq org-todo-keywords
-  '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE" "THINKING")))
+  '((sequence "TODO" "IN-PROGRESS" "WAITING" "THINKING" "DONE")))
 
 ;; throw error on edits that affect invisible part of buffer
 (setq org-catch-invisible-edits 'error)
-
+(setq org-ellipsis "⤵")
 ;; add timestamp when closing task
 (setq org-log-done 'time)
 
@@ -188,6 +187,10 @@
 (setq web-mode-enable-current-element-highlight t)
 (setq web-mode-enable-current-column-highlight t)
 
+;; reverse-im
+(reverse-im-mode t)
+(reverse-im-activate "russian-computer")
+
 (load "quail/cyrillic")
 (quail-defrule "%" ?% "cyrillic-jcuken") ; 5
 (quail-defrule "^" ?: "cyrillic-jcuken") ; 6
@@ -221,9 +224,9 @@
       (activate-input-method current))))
 
 (global-set-key (kbd "<mouse-4>")
- (lambda () (interactive) (scroll-down mouse-wheel-scroll-amount) (redisplay)))
+  (lambda () (interactive) (scroll-down mouse-wheel-scroll-amount) (redisplay)))
 (global-set-key (kbd "<mouse-5>")
- (lambda () (interactive) (scroll-up mouse-wheel-scroll-amount) (redisplay)))
+  (lambda () (interactive) (scroll-up mouse-wheel-scroll-amount) (redisplay)))
 
 (require 'whitespace)
 (setq whitespace-line-column 100) ;; limit line length
@@ -250,7 +253,7 @@
 (require 'ruby-hash-syntax)
 (add-to-list 'auto-mode-alist
                '("\\.\\(?:gemspec\\|irbrc\\|gemrc\\|rake\\|rb\\|ru\\|thor\\)\\'" . ruby-mode))
-  (add-to-list 'auto-mode-alist
+(add-to-list 'auto-mode-alist
                '("\\(Capfile\\|Gemfile\\(?:\\.[a-zA-Z0-9._-]+\\)?\\|[rR]akefile\\)\\'" . ruby-mode))
 
 (require 'flymake-ruby)
@@ -264,6 +267,8 @@
 
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
+(add-to-list 'auto-mode-alist '("\\.yaml$" . yaml-mode))
+(add-hook 'yaml-mode-hook '(lambda () (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
@@ -274,6 +279,19 @@
 (setq git-gutter+-modified-sign "~")
 (setq git-gutter+-added-sign "+")
 (setq git-gutter+-deleted-sign "-")
+
+(global-set-key (kbd "C-x C-g") 'git-gutter)
+(global-set-key (kbd "C-x v =") 'git-gutter:popup-hunk)
+
+;; Jump to next/previous hunk
+(global-set-key (kbd "C-x p") 'git-gutter:previous-hunk)
+(global-set-key (kbd "C-x n") 'git-gutter:next-hunk)
+
+;; Stage current hunk
+(global-set-key (kbd "C-x v s") 'git-gutter:stage-hunk)
+
+;; Revert current hunk
+(global-set-key (kbd "C-x v r") 'git-gutter:revert-hunk)
 
 (set-face-foreground 'git-gutter+-modified "purple")
 (set-face-foreground 'git-gutter+-added    "green")
