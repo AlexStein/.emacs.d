@@ -39,6 +39,8 @@
         '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 
 (tool-bar-mode -1)
+(desktop-save-mode 1)
+
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq inhibit-startup-message t)
@@ -71,6 +73,10 @@
     nil)
 (add-to-list 'write-file-functions 'untabify-current-buffer)
 (add-to-list 'write-file-functions 'delete-trailing-whitespace)
+
+;; highlight line with the cursor, preserving the colours.
+(global-hl-line-mode 1)
+(set-face-attribute 'hl-line nil :foreground nil :background "#333300")
 
 ;; Default projects folder
 (when (system-is-linux)
@@ -121,19 +127,12 @@
 (setq smartscan-symbol-selector "symbol")
 (add-hook 'python-mode-hook 'smartscan-mode)
 
-;; highlight line with the cursor, preserving the colours.
-(global-hl-line-mode 1)
-(set-face-attribute 'hl-line nil :foreground nil :background "#333300")
-
 (require 'auto-install)
 (global-display-line-numbers-mode t)
 
 ;; show current time
 (display-time-mode 1)
 (setq display-time-format "%H:%M:%S")
-
-;;magit status
-(global-set-key (kbd "C-x g") 'magit-status)
 
 (require 'ido)
 (ido-mode t)
@@ -274,6 +273,9 @@
 (global-set-key [f8] 'neotree-toggle)
 (setq neo-smart-open t)
 
+;;magit status
+(global-set-key (kbd "C-x g") 'magit-status)
+
 ;; git-gutter
 (global-git-gutter+-mode t)
 (setq git-gutter+-modified-sign "~")
@@ -338,7 +340,7 @@
 ;; Snippets
 (require 'yasnippet)
 (yas-global-mode 1)
-(setq yas-snippet-dirs '("~/.emacs.d/snippets" ))
+(setq yas-snippet-dirs '("~/.emacs.d/snippets"))
 (provide 'init-yasnippet)
 
 ;; Bookmark settings
@@ -354,5 +356,9 @@
 ;; Emacs server
 (when (system-is-linux)
   (require 'server)
+  (setq server-socket-dir "~/.emacs.d/server")
   (unless (server-running-p)
     (server-start)))
+
+;; Python
+(elpy-enable)
