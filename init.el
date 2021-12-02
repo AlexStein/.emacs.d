@@ -8,7 +8,7 @@
  '(display-time-mode t)
  '(ede-project-directories '("~/positive/ptaf/ptaf-services/"))
  '(package-selected-packages
-   '(reverse-im smart-shift all-the-icons smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2))
+   '(protobuf-mode reverse-im smart-shift all-the-icons smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2))
  '(safe-local-variable-values '((encoding . utf-8)))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
@@ -33,6 +33,10 @@
 ;; F7 to edit init.el
 (global-set-key [f7] (lambda () (interactive) (find-file user-init-file)))
 
+;; Increase Decrease font size C-+ and C--
+(global-set-key [C-kp-add] 'text-scale-increase)
+(global-set-key [C-kp-subtract] 'text-scale-decrease)
+
 ;; Show full path to file in current buffer in frame title
 (setq frame-title-format
       (list (format "%s %%S: %%j " (system-name))
@@ -48,6 +52,8 @@
 (setq use-dialog-box nil)
 (setq redisplay-dont-pause t)
 (setq ring-bell-function 'ignore)
+
+(set-language-environment "UTF-8")
 
 ;; Disable backup/autosave files
 (setq make-backup-files nil)
@@ -361,4 +367,6 @@
     (server-start)))
 
 ;; Python
-(elpy-enable)
+(when (system-is-linux)
+  (elpy-enable)
+  (setq elpy-rpc-virtualenv-path 'current))
