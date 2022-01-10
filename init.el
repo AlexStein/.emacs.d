@@ -8,7 +8,7 @@
  '(display-time-mode t)
  '(ede-project-directories '("~/positive/ptaf/ptaf-services/"))
  '(package-selected-packages
-   '(protobuf-mode reverse-im smart-shift all-the-icons smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2))
+   '(dumb-jump xref protobuf-mode reverse-im smart-shift all-the-icons smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2))
  '(safe-local-variable-values '((encoding . utf-8)))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
@@ -36,6 +36,9 @@
 ;; Increase Decrease font size C-+ and C--
 (global-set-key [C-kp-add] 'text-scale-increase)
 (global-set-key [C-kp-subtract] 'text-scale-decrease)
+
+;;swap buffers
+(global-set-key (kbd "C-x u") 'window-swap-states)
 
 ;; Show full path to file in current buffer in frame title
 (setq frame-title-format
@@ -98,6 +101,11 @@
 (when (< emacs-major-version 27)
   (package-initialize))
 
+(add-hook 'find-file-hooks 'assume-new-is-modified)
+(defun assume-new-is-modified ()
+  (when (not (file-exists-p (buffer-file-name)))
+    (set-buffer-modified-p t)))
+
 ;; ;; Bounds indicator
 ;; (require 'fill-column-indicator)
 ;; (setq fci-rule-column 100)
@@ -129,6 +137,11 @@
 (setq dumb-jump-prefer-searcher 'rg)
 (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
 
+;; rg
+(when (system-is-linux)
+  (rg-enable-default-bindings)
+  (setq rg-ignore-case nil))
+
 ;; smartscan
 (setq smartscan-symbol-selector "symbol")
 (add-hook 'python-mode-hook 'smartscan-mode)
@@ -152,6 +165,7 @@
 
 ;; throw error on edits that affect invisible part of buffer
 (setq org-catch-invisible-edits 'error)
+(setq org-src-fontify-natively t)
 (setq org-ellipsis "⤵")
 ;; add timestamp when closing task
 (setq org-log-done 'time)
@@ -279,7 +293,7 @@
 (global-set-key [f8] 'neotree-toggle)
 (setq neo-smart-open t)
 
-;;magit status
+;; magit status
 (global-set-key (kbd "C-x g") 'magit-status)
 
 ;; git-gutter
