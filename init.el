@@ -5,10 +5,12 @@
  ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector
    ["#2e3436" "#a40000" "#4e9a06" "#c4a000" "#204a87" "#5c3566" "#729fcf" "#eeeeec"])
+ '(column-number-mode t)
  '(display-time-mode t)
  '(ede-project-directories '("~/positive/ptaf/ptaf-services/"))
+ '(global-display-line-numbers-mode t)
  '(package-selected-packages
-   '(dumb-jump xref protobuf-mode reverse-im smart-shift all-the-icons smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2))
+   '(highlight-blocks highlight-indent-guides indent-tools go-mode docker-compose-mode dockerfile-mode dumb-jump xref protobuf-mode reverse-im smart-shift all-the-icons smartscan expand-region magit yasnippet yaml-mode tern-auto-complete sass-mode ruby-hash-syntax rinari projectile-rails org neotree json-mode ido-at-point highlight-parentheses highlight git-gutter+ flymake-yaml flymake-sass flymake-ruby flymake-haml flymake-coffee coffee-mode cl-generic ac-js2))
  '(safe-local-variable-values '((encoding . utf-8)))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
@@ -18,8 +20,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;; Custom Railcasts theme
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(load-theme 'railscasts t nil)
+(load-theme 'railscasts-reloaded t nil)
 
 ;; System-type definition
 (defun system-is-linux()
@@ -57,6 +61,13 @@
 (setq ring-bell-function 'ignore)
 
 (set-language-environment "UTF-8")
+
+(when (system-is-linux)
+  (add-to-list 'default-frame-alist
+               '(font . "Monospace Regular-12")))
+(when (system-is-windows)
+  (add-to-list 'default-frame-alist
+               '(font . "Consolas-12")))
 
 ;; Disable backup/autosave files
 (setq make-backup-files nil)
@@ -106,14 +117,6 @@
   (when (not (file-exists-p (buffer-file-name)))
     (set-buffer-modified-p t)))
 
-;; ;; Bounds indicator
-;; (require 'fill-column-indicator)
-;; (setq fci-rule-column 100)
-;; (setq fci-rule-width 1)
-;; (setq fci-rule-color "darkred")
-
-;; (add-hook 'python-mode-hook 'fci-mode)
-
 ;; Trailing spaces
 (add-hook 'prog-mode-hook
       (lambda () (setq show-trailing-whitespace t)))
@@ -123,8 +126,13 @@
 
 (add-to-list 'load-path "~/.emacs.d/mods/")
 
+;; rg
 (require 'rg)
+(when (system-is-linux)
+  (rg-enable-default-bindings))
+
 (setq rg-ignore-case nil)
+;; (setq rg-command-line-flags '("--hidden"))
 (global-set-key (kbd "M-s") 'ripgrep-regexp)
 
 ;; dumb jump
@@ -136,11 +144,6 @@
 
 (setq dumb-jump-prefer-searcher 'rg)
 (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
-
-;; rg
-(when (system-is-linux)
-  (rg-enable-default-bindings)
-  (setq rg-ignore-case nil))
 
 ;; smartscan
 (setq smartscan-symbol-selector "symbol")
@@ -267,6 +270,11 @@
       (require 'tern-auto-complete)
       (tern-ac-setup)))
 
+;; Go
+(require 'go-mode)
+(add-hook 'before-save-hook 'gofmt-before-save)
+(setq-default gofmt-command "goimports")
+
 ;; Ruby
 (require 'ruby-mode)
 (require 'ruby-hash-syntax)
@@ -287,7 +295,7 @@
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml$" . yaml-mode))
-(add-hook 'yaml-mode-hook '(lambda () (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
+;;(add-hook 'yaml-mode-hook '(lambda () (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
@@ -302,6 +310,10 @@
 (setq git-gutter+-added-sign "+")
 (setq git-gutter+-deleted-sign "-")
 
+(set-face-foreground 'git-gutter+-modified "purple")
+(set-face-foreground 'git-gutter+-added    "green")
+(set-face-foreground 'git-gutter+-deleted  "red")
+
 (global-set-key (kbd "C-x C-g") 'git-gutter)
 (global-set-key (kbd "C-x v =") 'git-gutter:popup-hunk)
 
@@ -314,10 +326,6 @@
 
 ;; Revert current hunk
 (global-set-key (kbd "C-x v r") 'git-gutter:revert-hunk)
-
-(set-face-foreground 'git-gutter+-modified "purple")
-(set-face-foreground 'git-gutter+-added    "green")
-(set-face-foreground 'git-gutter+-deleted  "red")
 
 ;; Highlight parentheses
 (define-globalized-minor-mode global-highlight-parentheses-mode
@@ -367,11 +375,26 @@
 (require 'bookmark)
 (setq bookmark-save-flag t)
 (when (file-exists-p (concat user-emacs-directory "bookmarks"))
-    (bookmark-load bookmark-default-file t))
+  (bookmark-load bookmark-default-file t))
 (global-set-key (kbd "<f3>") 'bookmark-set)
 (global-set-key (kbd "<f4>") 'bookmark-jump)
 (global-set-key (kbd "<f5>") 'bookmark-bmenu-list)
 (setq bookmark-default-file (concat user-emacs-directory "bookmarks"))
+
+
+;; Open *grep* links in same buffer
+(defun my-compile-goto-error-same-window ()
+  (interactive)
+  (let ((display-buffer-overriding-action
+         '((display-buffer-reuse-window
+            display-buffer-same-window)
+           (inhibit-same-window . nil))))
+    (call-interactively #'compile-goto-error)))
+
+(defun my-compilation-mode-hook ()
+  (local-set-key (kbd "o") #'my-compile-goto-error-same-window))
+
+(add-hook 'compilation-mode-hook #'my-compilation-mode-hook)
 
 ;; Emacs server
 (when (system-is-linux)
